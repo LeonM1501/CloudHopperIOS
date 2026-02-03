@@ -17,6 +17,7 @@ workflows:
           inputs:
             - project_path: Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
+            - destination: generic/platform=iOS
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
           outputs:
@@ -38,7 +39,7 @@ workflows:
             - project_path: Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
             - configuration: Debug
-            - destination: generic/platform=iOS Simulator
+            - destination: generic/platform=iOS
             - log_formatter: xcpretty
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
