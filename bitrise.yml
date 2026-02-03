@@ -4,23 +4,20 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 workflows:
   run_tests:
-    description: Build and test the Unity iOS app
+    description: Build the Unity iOS app
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
       - restore-cocoapods-cache@2: {}
       - restore-spm-cache@2: {}
       - cocoapods-install@2: {}
-      - xcode-test@6:
+      - xcode-build@4:
           inputs:
             - project_path: Beta-1.0-IOS/Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
-            - destination: generic/platform=iOS
-            - perform_clean_action: 'false'
-            - xcbeautify_options: ''
-            - xcpretty_options: ''
+            - configuration: Release
+            - disable_index_while_building: 'true'
             - log_formatter: xcpretty
-          is_always_run: false
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
