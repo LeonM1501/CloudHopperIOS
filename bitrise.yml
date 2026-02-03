@@ -58,6 +58,65 @@ workflows:
             - distribution_method: development
             - automatic_code_signing: apple-id
             - log_formatter: xcpretty
+      - script@1:
+          title: Upload IPA to Release Management Test Builds
+          inputs:
+            - content: |-
+                set -euo pipefail
+
+                : "${BITRISE_IPA_PATH:?BITRISE_IPA_PATH not set (no IPA exported)}"
+                : "${BITRISE_RM_API_ACCESS_TOKEN:?Set this as a Secret env var in Bitrise}"
+                : "${BITRISE_RM_CONNECTED_APP_ID:?Set this (non-secret) env var in Bitrise}"
+
+                rm_api_host="${BITRISE_RM_API_HOST:-https://api.bitrise.io}"
+                ipa_path="$BITRISE_IPA_PATH"
+                file_name="$(basename "$ipa_path")"
+                file_size_bytes="$(stat -f%z "$ipa_path")"
+                installable_artifact_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+
+                upload_info_json="$(curl -sS -H "Authorization: $BITRISE_RM_API_ACCESS_TOKEN" \
+                  "$rm_api_host/release-management/v1/connected-apps/$BITRISE_RM_CONNECTED_APP_ID/installable-artifacts/$installable_artifact_id/upload-url?file_name=$file_name&file_size_bytes=$file_size_bytes")"
+
+                python3 - "$ipa_path" <<<"$upload_info_json" <<'PY'
+import json, os, subprocess, sys, time
+
+ipa_path = sys.argv[1]
+data = json.load(sys.stdin)
+
+method = data["method"]
+url = data["url"]
+headers = []
+for _, v in data.get("headers", {}).items():
+    name = v.get("name")
+    value = v.get("value")
+    if name and value:
+        headers.extend(["-H", f"{name}: {value}"])
+
+cmd = ["curl", "-sS", "-o", "/dev/null", "-w", "%{http_code}", "-X", method, *headers, "--upload-file", ipa_path, url]
+code = subprocess.check_output(cmd, text=True).strip()
+if code != "200":
+    raise SystemExit(f"Upload failed, HTTP {code}")
+PY
+
+                for i in $(seq 1 60); do
+                  status_json="$(curl -sS -H "Authorization: $BITRISE_RM_API_ACCESS_TOKEN" \
+                    "$rm_api_host/release-management/v1/connected-apps/$BITRISE_RM_CONNECTED_APP_ID/installable-artifacts/$installable_artifact_id/status")"
+                  status="$(python3 - <<'PY' "$status_json"
+import json,sys
+print(json.loads(sys.argv[1]).get("status",""))
+PY
+)"
+
+                  if [ "$status" = "processed_valid" ] || [ "$status" = "processed_invalid" ]; then
+                    echo "$status_json"
+                    exit 0
+                  fi
+
+                  sleep 2
+                done
+
+                echo "Timed out waiting for artifact processing"
+                exit 1
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}

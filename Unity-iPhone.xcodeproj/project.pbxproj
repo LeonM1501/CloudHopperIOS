@@ -1666,7 +1666,7 @@
 					"$(inherited)",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.xLeonTTVDeveloperStudios.CloudHopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leonm1501.cloudhopper;
 				PRODUCT_NAME = "$(PRODUCT_NAME_APP)";
 				PROVISIONING_PROFILE = "$(PROVISIONING_PROFILE_APP)";
 				PROVISIONING_PROFILE_APP = "";
@@ -1707,7 +1707,7 @@
 					"$(inherited)",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.xLeonTTVDeveloperStudios.CloudHopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leonm1501.cloudhopper;
 				PRODUCT_NAME = "$(PRODUCT_NAME_APP)";
 				PROVISIONING_PROFILE = "$(PROVISIONING_PROFILE_APP)";
 				PROVISIONING_PROFILE_APP = "";
@@ -1873,7 +1873,7 @@
 					"$(inherited)",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.xLeonTTVDeveloperStudios.CloudHopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leonm1501.cloudhopper;
 				PRODUCT_NAME = "$(PRODUCT_NAME_APP)";
 				PROVISIONING_PROFILE = "$(PROVISIONING_PROFILE_APP)";
 				PROVISIONING_PROFILE_APP = "";
@@ -1983,7 +1983,7 @@
 					"$(inherited)",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.xLeonTTVDeveloperStudios.CloudHopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leonm1501.cloudhopper;
 				PRODUCT_NAME = "$(PRODUCT_NAME_APP)";
 				PROVISIONING_PROFILE = "$(PROVISIONING_PROFILE_APP)";
 				PROVISIONING_PROFILE_APP = "";
