@@ -13,11 +13,11 @@ workflows:
       - restore-cocoapods-cache@2: {}
       - restore-spm-cache@2: {}
       - cocoapods-install@2: {}
-      - xcode-build@4:
+      - xcode-build-for-simulator@2:
           inputs:
             - project_path: Beta-1.0-IOS/Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
-            - configuration: Release
+            - destination: generic/platform=iOS Simulator
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
       - save-cocoapods-cache@2: {}
