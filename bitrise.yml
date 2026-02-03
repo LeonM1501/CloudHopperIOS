@@ -8,7 +8,7 @@ app:
     - BITRISE_SCHEME: Unity-iPhone
 workflows:
   run_tests:
-    description: Build the Unity iOS app
+    description: Run Xcode tests using .xcodeproj (no workspace)
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
@@ -19,27 +19,13 @@ workflows:
           inputs:
             - project_path: Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
-            - action: archive
-            - disable_index_while_building: 'true'
-            - log_formatter: xcpretty
-            - xcodebuild_options: 'CODE_SIGNING_ALLOWED=NO'
-      - save-cocoapods-cache@2: {}
-      - save-spm-cache@2: {}
-      - deploy-to-bitrise-io@2: {}
-  test_ios_simulator:
-    description: Run Xcode tests using .xcodeproj (no workspace)
-    steps:
-      - activate-ssh-key@4: {}
-      - git-clone@8: {}
-      - xcode-build@3:
-          inputs:
-            - project_path: Unity-iPhone.xcodeproj
-            - scheme: Unity-iPhone
             - action: test
             - destination: platform=iOS Simulator,name=iPhone 16
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
             - xcodebuild_options: 'CODE_SIGNING_ALLOWED=NO'
+      - save-cocoapods-cache@2: {}
+      - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
   build_for_testing:
     description: Build the Unity iOS app for testing
@@ -134,6 +120,24 @@ PY
 
                 echo "Timed out waiting for artifact processing"
                 exit 1
+      - save-cocoapods-cache@2: {}
+      - save-spm-cache@2: {}
+      - deploy-to-bitrise-io@2: {}
+  archive_and_export_app:
+    description: Archive and export an installable IPA
+    steps:
+      - activate-ssh-key@4: {}
+      - git-clone@8: {}
+      - restore-cocoapods-cache@2: {}
+      - restore-spm-cache@2: {}
+      - cocoapods-install@2: {}
+      - xcode-archive@5:
+          inputs:
+            - project_path: Unity-iPhone.xcodeproj
+            - scheme: Unity-iPhone
+            - distribution_method: development
+            - automatic_code_signing: api-key
+            - log_formatter: xcpretty
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
