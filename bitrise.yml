@@ -26,6 +26,21 @@ workflows:
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
+  test_ios_simulator:
+    description: Run Xcode tests using .xcodeproj (no workspace)
+    steps:
+      - activate-ssh-key@4: {}
+      - git-clone@8: {}
+      - xcode-build@3:
+          inputs:
+            - project_path: Unity-iPhone.xcodeproj
+            - scheme: Unity-iPhone
+            - action: test
+            - destination: platform=iOS Simulator,name=iPhone 16
+            - disable_index_while_building: 'true'
+            - log_formatter: xcpretty
+            - xcodebuild_options: 'CODE_SIGNING_ALLOWED=NO'
+      - deploy-to-bitrise-io@2: {}
   build_for_testing:
     description: Build the Unity iOS app for testing
     steps:
