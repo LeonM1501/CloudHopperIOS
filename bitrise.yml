@@ -17,9 +17,11 @@ workflows:
           inputs:
             - project_path: Beta-1.0-IOS/Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
-            - destination: generic/platform=iOS Simulator
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
+          outputs:
+            - BITRISE_APP_DIR_PATH
+            - BITRISE_XCODE_BUILD_RAW_RESULT_TEXT_PATH
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
