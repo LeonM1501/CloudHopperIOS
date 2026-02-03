@@ -20,6 +20,7 @@ workflows:
             - action: archive
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
+            - xcodebuild_options: 'CODE_SIGNING_ALLOWED=NO'
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
@@ -38,6 +39,7 @@ workflows:
             - configuration: Debug
             - destination: generic/platform=iOS
             - log_formatter: xcpretty
+            - xcodebuild_options: 'CODE_SIGNING_ALLOWED=NO'
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
