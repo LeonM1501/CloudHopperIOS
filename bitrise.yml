@@ -6,23 +6,20 @@ app:
   envs: []
 workflows:
   run_tests:
-    description: Build the Unity iOS app for simulator
+    description: Build the Unity iOS app
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
       - restore-cocoapods-cache@2: {}
       - restore-spm-cache@2: {}
       - cocoapods-install@2: {}
-      - xcode-build-for-simulator@2:
+      - xcode-build@3:
           inputs:
             - project_path: Unity-iPhone.xcodeproj
             - scheme: Unity-iPhone
-            - destination: generic/platform=iOS
+            - action: archive
             - disable_index_while_building: 'true'
             - log_formatter: xcpretty
-          outputs:
-            - BITRISE_APP_DIR_PATH
-            - BITRISE_XCODE_BUILD_RAW_RESULT_TEXT_PATH
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
