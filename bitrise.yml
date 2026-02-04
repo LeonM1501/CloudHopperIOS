@@ -6,6 +6,7 @@ app:
   envs:
     - BITRISE_PROJECT_PATH: Unity-iPhone.xcodeproj
     - BITRISE_SCHEME: Unity-iPhone
+    - GIT_LFS_SKIP_SMUDGE: "1"
 workflows:
   run_tests:
     description: Run Xcode tests using .xcodeproj (no workspace)
@@ -124,20 +125,48 @@ PY
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
   archive_and_export_app:
-    description: Archive and export an installable IPA
+    description: Build an unsigned simulator IPA artifact (not installable on devices)
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
       - restore-cocoapods-cache@2: {}
       - restore-spm-cache@2: {}
       - cocoapods-install@2: {}
-      - xcode-archive@5:
+      - script@1:
+          title: Build unsigned simulator app and package as IPA
           inputs:
-            - project_path: Unity-iPhone.xcodeproj
-            - scheme: Unity-iPhone
-            - distribution_method: development
-            - automatic_code_signing: api-key
-            - log_formatter: xcpretty
+            - content: |-
+                set -euo pipefail
+
+                derived_data_path="$BITRISE_SOURCE_DIR/DerivedData"
+                rm -rf "$derived_data_path"
+
+                xcodebuild \
+                  -project "Unity-iPhone.xcodeproj" \
+                  -scheme "Unity-iPhone" \
+                  -configuration Debug \
+                  -sdk iphonesimulator \
+                  -destination "platform=iOS Simulator,name=iPhone 16" \
+                  -derivedDataPath "$derived_data_path" \
+                  CODE_SIGNING_ALLOWED=NO \
+                  build
+
+                app_path="$(find "$derived_data_path/Build/Products" -maxdepth 2 -type d -name "*.app" | head -n 1)"
+                if [ -z "${app_path:-}" ] || [ ! -d "$app_path" ]; then
+                  echo "No .app found under DerivedData"
+                  exit 1
+                fi
+
+                payload_dir="$BITRISE_DEPLOY_DIR/Payload"
+                rm -rf "$payload_dir"
+                mkdir -p "$payload_dir"
+                cp -R "$app_path" "$payload_dir/"
+
+                ipa_path="$BITRISE_DEPLOY_DIR/unsigned-simulator.ipa"
+                rm -f "$ipa_path"
+                (cd "$BITRISE_DEPLOY_DIR" && /usr/bin/zip -qry "$ipa_path" Payload)
+
+                echo "Created IPA artifact: $ipa_path"
       - save-cocoapods-cache@2: {}
       - save-spm-cache@2: {}
       - deploy-to-bitrise-io@2: {}
